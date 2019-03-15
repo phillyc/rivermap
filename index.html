@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <title>River Map</title>
+    <meta name="description" content="Plots of water guages along a river.">
+    <meta name="author" content="Phil Carter">
+
+    <!-- Mobile Specific Metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- FONT -->
+    <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+        integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="Skeleton-2.0.4/css/normalize.css">
+    <link rel="stylesheet" href="Skeleton-2.0.4/css/skeleton.css">
+
+    <!-- Mapbox -->
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.css' rel='stylesheet' />
+
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <h1><i class="fas fa-map-marked-alt"></i> River Map</h1>
+        </div>
+        <div class="row">
+            <h6><em>An example of MapBox plot points.</em></h6>
+        </div>
+        
+        <div class="row">
+            <div class="twelve columns" id='map' style='width: 350px; height: 250px;'></div>
+        </div>
+
+        <div class="row">
+            <table class="u-full-width" id="gageTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Longitute, Latitude</th>
+                        <th>Stage</th>
+                        <th>Flow</th>
+                        <th>Link</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // This token is a throwaway.
+        mapboxgl.accessToken = 'pk.eyJ1IjoicGhpbGx5YyIsImEiOiJjanQ5MzJ3bm4wZmRiNDRxa3ducW4wYTV5In0.BKA3JkGAW2wWDnDB7qSBCg';
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v9',
+            center: [-82.92, 29.95], // Mapbox is LngLat
+            zoom: 7, // Higher # is closer to the ground (more zoom!).
+        });
+        // Declare class for water gages.
+        class Gage {
+            constructor(name, lng, lat, stage, flow, url) {
+                this.name = name;
+                this.lng = lng;
+                this.lat = lat;
+                this.stage = stage;
+                this.flow = flow;
+                this.url = url;
+            }
+        }
+        // Declare array of gages.
+        // If I had a DB backend, this is where I'd inject data.
+        let gages = [
+            new Gage(
+                'Suwannee River at Luraville',
+                -83.171667,
+                30.099722,
+                '27.41ft',
+                '10.8kcfs',
+                'https://water.weather.gov/ahps2/hydrograph.php?wfo=tae&gage=lurf1',
+            ),
+            new Gage(
+                'Suwannee River at Branford',
+                -82.928992,
+                29.955212,
+                '19.74ft',
+                '12.5kcfs',
+                'https://water.weather.gov/ahps2/hydrograph.php?wfo=tae&gage=bfdf1',
+            ),
+            new Gage(
+                'Suwannee River at Wilcox',
+                -82.936667,
+                29.589444,
+                '7.07ft',
+                '15.3kcfs',
+                'https://water.weather.gov/ahps2/hydrograph.php?wfo=tae&gage=wcxf1'
+            )
+        ]
+        // How to init marker on the map..
+        // var marker = new mapboxgl.Marker()
+        //     .setLngLat([-82.928992, 29.955212])
+        //     .addTo(map);
+        // Adding all our markers...
+        for (let gage of gages) {
+            new mapboxgl.Marker()
+                .setLngLat([gage.lng, gage.lat])
+                .addTo(map);
+            // Add gage data to table.
+            var markerHtml = "<td>" + gage.name + "</td>" +
+                             "<td>" + gage.lng + ", " + gage.lat + "</td>" +
+                             "<td>" + gage.stage + "</td>" +
+                             "<td>" + gage.flow + "</td>" +
+                             "<td><a href='" + gage.url + "'><i class='fas fa-link'></i></a>" + "</td>";
+            var tableRef = document.getElementById("gageTable").getElementsByTagName('tbody')[0]
+            var newRow = tableRef.insertRow(tableRef.rows.length)
+            newRow.innerHTML = markerHtml
+        }
+    </script>
+</body>
+</html>
